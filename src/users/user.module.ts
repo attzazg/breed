@@ -7,11 +7,16 @@ import { JwtModule, JwtService } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { jwtsecretKey } from './jwtsecretKey';
 import { ReturnClass } from 'src/returnClass';
+import { MulterModule } from '@nestjs/platform-express';
 
 
 @Module({
   imports: [MongooseModule.forFeature( [ { name: UsersCollection.name, schema : UsersSchema }]),
   PassportModule, 
+  MulterModule.register({
+    dest: './files',
+  }),
+  
   JwtModule.register({
     secret: jwtsecretKey.secret,
     signOptions: { expiresIn: '60s' },

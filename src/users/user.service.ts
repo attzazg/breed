@@ -1,17 +1,14 @@
 import { HttpException, HttpStatus, Injectable, InternalServerErrorException, UnauthorizedException, Logger, Inject } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { exit } from 'process';
-import { Address, UsersCollection, UsersDocument } from './schema/users.schema';
-import { UserType, uservalidation } from './user.dto';
+import { UsersCollection, UsersDocument } from './schema/users.schema';
+import { uservalidation } from './user.dto';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { jwtsecretKey } from './jwtsecretKey';
-import { match } from 'assert';
 import { ReturnClass } from 'src/returnClass';// import class
-import { map } from 'rxjs';
 
 
 
@@ -47,26 +44,17 @@ export class UserService extends PassportStrategy(Strategy, 'local') {
 
   async postall(data) {
 
-
     try {
 
 
-      let { name, username, email, password, usertype } = data;
+      let { username, email, password } = data;
 
-      username = username.toLowerCase();
-      email = email.toLowerCase();
+      const usernameLower = username.toLowerCase();
+      const emailLower = email.toLowerCase();
       const saltOrRounds = 10;
-      password = await bcrypt.hash(password, saltOrRounds);
+      const passwordEncrypted = await bcrypt.hash(password, saltOrRounds);
 
-
-      const address = { current_address: data.current_address, permanent_address: data.permanent_address }
-
-      const newData = { name, username, email, password, usertype, address };
-
-
-
-      const result = await new this.usersModel(newData).save();
-
+      const result = await new this.usersModel({ ...data, username: usernameLower, email: emailLower, password: passwordEncrypted }).save();
 
       if (result != null) {
 
@@ -80,7 +68,7 @@ export class UserService extends PassportStrategy(Strategy, 'local') {
 
     } catch (error) {
 
-      return this.returnClass.emailalreadyExist(error)
+      return error;
 
 
     }
@@ -134,7 +122,7 @@ export class UserService extends PassportStrategy(Strategy, 'local') {
 
 
     }
-    
+
 
   }
 
@@ -218,18 +206,19 @@ export class UserService extends PassportStrategy(Strategy, 'local') {
 
     if (!user) {
       console.log("Invalid Email");
-      return { 
+      return {
         status: HttpStatus.UNAUTHORIZED,
-        message: "Invalid Email " };
+        message: "Invalid Email "
+      };
 
     }
 
     const matched = await bcrypt.compare(password, user.password);
 
     if (!matched) {
-      
+
       console.log("Invalid Password");
-      
+
       return {
         status: HttpStatus.UNAUTHORIZED,
         message: "Invalid Password ",
@@ -239,41 +228,40 @@ export class UserService extends PassportStrategy(Strategy, 'local') {
 
     console.log("User Login Successfully");
 
-    return user;
-
+    return this.returnClass.successorNotFoundMessage(user)
   }
 
 
- async addressUpdate(id, data){
-  const addressId = Number("63845d66d3741fde7069ec5a");
-  try {
-    
-    const user_data = await this.usersModel.findById(id);
+  async addressUpdate(id, data) {
+    const addressId = Number("63845d66d3741fde7069ec5a");
+    try {
 
-    // user_data.address;
-     console.log(user_data.address);
+      const user_data = await this.usersModel.findById(id);
 
-    
-   user_data.address.forEach(addressData => {
+      // user_data.address;
+      console.log(user_data.address);
 
-  const user_data1 =  this.usersModel.updateOne({ _id: id }, data);
+      const address = { data }
+      console.log(address);
 
-    console.log('hello');
-    
-  });
-    
-  
-  
+    } catch (error) {
+      return this.returnClass.errorMessage(error);
+    }
 
-    const address = {data}
-    console.log(address);
-    
-  } catch (error) {
-    this.returnClass.errorMessage(error);
+
   }
-  
-  
- }
+
+  async uploadFile(id, file){
+
+   const result = await this.usersModel.findByIdAndUpdate(id,{profile : file.originalname});
+
+     console.log(result);
+
+     return result;
+
+
+
+  }
 
 
 }

@@ -1,8 +1,12 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, Request, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, UploadedFile, UseGuards, UseInterceptors, } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiAcceptedResponse, ApiCreatedResponse, ApiTags } from '@nestjs/swagger';
-import { addressDTo, userSignIn, uservalidation, uservalidationUpdate } from './user.dto';
+import { diskStorage } from 'multer';
+
+import { userSignIn, uservalidation, uservalidationUpdate } from './user.dto';
 import { UserService } from './user.service';
+
 
 @ApiTags('User')
 @Controller()
@@ -23,7 +27,6 @@ export class UserController {
 
   })
   postall(@Body() data: uservalidation) {
-
     return this.userService.postall(data);
   }
 
@@ -52,7 +55,6 @@ export class UserController {
 
   @Post("/signin")
   @ApiAcceptedResponse({
-    description: "User Login Successfully!"
 
   })
 
@@ -61,21 +63,28 @@ export class UserController {
     return this.userService.signIn(data);
   }
 
-
-  @Post("/address/:id")
-  @ApiAcceptedResponse({
-    description: "address update Successfully!"
-
-  })
-
-  address(@Param('id') id: string, @Body() data: addressDTo) {
-
-    return this.userService.addressUpdate(id, data);
-  }
  
+ 
+  @Post('/upload')
+  @UseInterceptors(FileInterceptor('file', {
+    storage : diskStorage({
+      destination : './files',
+      filename : (req, file, callback)=>{
+      const filename = Date.now()+'-'+file.originalname;
+        callback(null, filename)
+      },
+    }),
+  }),  
   
+  )
+  
+  uploadFile(@UploadedFile() file: Express.Multer.File, @Body() id : string) {
+
+
+    return this.userService.uploadFile(id,file);
+
+  }
 
 }
-
 
 

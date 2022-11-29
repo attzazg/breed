@@ -5,7 +5,7 @@ export type UsersDocument = HydratedDocument<UsersCollection>;//Merge two types 
 
 
 @Schema()
-export class Address{
+export class AddressSchemaClass{
 
     @Prop({required: true})
     current_address: string
@@ -14,7 +14,7 @@ export class Address{
     permanent_address : string 
 }
 
-export const AddressSchema = SchemaFactory.createForClass(Address);
+export const AddressSchema = SchemaFactory.createForClass(AddressSchemaClass);
 
 
 @Schema()
@@ -35,8 +35,11 @@ export class UsersCollection{
     @Prop({required: true})
     usertype : string;
 
+    @Prop()
+    profile : string
+
     @Prop({type: AddressSchema})
-    address : [Address]
+    address : AddressSchemaClass;
 }
 export const UsersSchema = SchemaFactory.createForClass(UsersCollection);
 

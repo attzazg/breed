@@ -1,28 +1,16 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { Type } from "class-transformer";
-import { IsArray, isArray, IsEmail, IsNotEmpty, IsNumber, isString, IsString, ValidateNested, ValidationTypes } from "class-validator";
+import { IsArray, isArray, IsEmail, IsNotEmpty, IsNumber, IsObject, isString, IsString, ValidateNested, ValidationTypes } from "class-validator";
 
-export interface UserType {
-
-    name: string,
-    username: string,
-    password: string
-    email: string,
-    usertype: string
-}
-
-export class Address {
-
+export class AddressDTO{
 
     @ApiProperty({
         example: "rawalpindi",
         description: "Insert Current address"
 
     })
-
     @IsString()
     // @IsNotEmpty()
-
     current_address: string;
 
 
@@ -31,36 +19,9 @@ export class Address {
         description: "Insert Permanent address"
 
     })
-
     @IsString()
     // @IsNotEmpty()
-
     permanent_address: string;
-
-
-}
-
-export class userSignIn {
-
-    @ApiProperty({
-        example: "attzazg@gmail.com",
-        description: "Insert Valid E-mail ID"
-
-    })
-
-    @IsEmail()
-    @IsNotEmpty()
-    email: string;
-
-    @ApiProperty({
-        example: "123",
-        description: "Insert Valid Password"
-
-    })
-
-    @IsString()
-    @IsNotEmpty()
-    password: string;
 
 }
 
@@ -91,7 +52,6 @@ export class uservalidation {
 
     })
 
-
     @IsString()
     @IsNotEmpty()
     password: string;
@@ -118,19 +78,13 @@ export class uservalidation {
     usertype: string;
 
 
-
+    
     @ApiProperty({
-        type: [Address]
+        description: "Add user role admin or user"
 
     })
-
-    @IsArray()
-    @ValidateNested()
-    @Type(() => Address)
-    address: Address;
-
-
-
+  
+    address: AddressDTO;
 
 }
 
@@ -196,18 +150,30 @@ export class uservalidationUpdate {
 
 }
 
-export class addressDTo {
-
+export class userSignIn {
 
     @ApiProperty({
-        type: [Address]
+        example: "attzazg@gmail.com",
+        description: "Insert Valid E-mail ID"
 
     })
 
-    @ValidateNested()
-    address: Address
+    @IsEmail()
+    @IsNotEmpty()
+    email: string;
+
+    @ApiProperty({
+        example: "123",
+        description: "Insert Valid Password"
+
+    })
+
+    @IsString()
+    @IsNotEmpty()
+    password: string;
 
 }
+
 
 
 
