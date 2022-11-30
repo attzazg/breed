@@ -248,7 +248,6 @@ export class UserService extends PassportStrategy(Strategy, 'local') {
       return this.returnClass.errorMessage(error);
     }
 
-
   }
 
   async uploadFile(id, file){
