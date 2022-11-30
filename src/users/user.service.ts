@@ -249,14 +249,41 @@ export class UserService extends PassportStrategy(Strategy, 'local') {
     }
 
   }
+  // single file uploading function- profile Pic
+  async profile(id, files) {
 
-  async uploadFile(id, file){
+    const result = await this.usersModel.updateOne(id, { profile: files.originalname });
 
-   const result = await this.usersModel.findByIdAndUpdate(id,{profile : file.originalname});
+    console.log(result);
 
-     console.log(result);
+    return result;
 
-     return result;
+  }
+
+  // multiple file uploading function
+  async portfolio(id, files) {
+
+    var title = {};
+
+    const filesdata = await files.map(file => {
+
+      title = {
+        name: file.originalname,
+
+      };
+
+      return title;
+
+
+    });
+    // console.log(result1);
+    // return result1;
+
+    const result = await this.usersModel.updateOne(id, { portfolio: filesdata });
+
+    console.log(result);
+
+    return result;
 
 
 

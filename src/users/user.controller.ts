@@ -1,6 +1,6 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, UploadedFile, UseGuards, UseInterceptors, } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, UploadedFile, UploadedFiles, UseGuards, UseInterceptors, } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { FileInterceptor } from '@nestjs/platform-express';
+import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { ApiAcceptedResponse, ApiCreatedResponse, ApiTags } from '@nestjs/swagger';
 import { diskStorage } from 'multer';
 
@@ -63,25 +63,45 @@ export class UserController {
     return this.userService.signIn(data);
   }
 
+   //single file uploading function - ProfilePic
+   @Post('/profile')
+   //FileInterceptor for Single file Uplaod and FilesInterceptor for Multipe Files 
+   @UseInterceptors(FileInterceptor('file', {
+     storage: diskStorage({
+       destination: './files',
+       filename: (req, file, callback) => {
+         const filename = Date.now() + '-' + file.originalname;
+         callback(null, filename)
+       },
+     }),
+   }),
  
+   )
+   //UploadedFile() for Single file Uplaod and UploadedFiles() for Multipe Files 
+   profile(@UploadedFile() file: Express.Multer.File, @Body() id: string) {
+
+     return this.userService.profile(id, file);
  
-  @Post('/upload')
-  @UseInterceptors(FileInterceptor('file', {
-    storage : diskStorage({
-      destination : './files',
-      filename : (req, file, callback)=>{
-      const filename = Date.now()+'-'+file.originalname;
+   }
+
+  // multiple file uploading function-portfolio
+  @Post('/portfolio')
+  //FileInterceptor for Single file Uplaod and FilesInterceptor for Multipe Files 
+  @UseInterceptors(FilesInterceptor('file', 3, {
+    storage: diskStorage({
+      destination: './files',
+      filename: (req, file, callback) => {
+        const filename = Date.now() + '-' + file.originalname;
         callback(null, filename)
       },
     }),
-  }),  
-  
+  }),
+
   )
-  
-  uploadFile(@UploadedFile() file: Express.Multer.File, @Body() id : string) {
+  //UploadedFile() for Single file Uplaod and UploadedFiles() for Multipe Files 
+  portfolio(@UploadedFiles() files: Array<Express.Multer.File>, @Body() id: string) {
 
-
-    return this.userService.uploadFile(id,file);
+    return this.userService.portfolio(id, files);
 
   }
 

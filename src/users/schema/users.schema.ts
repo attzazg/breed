@@ -35,8 +35,11 @@ export class UsersCollection{
     @Prop({required: true})
     usertype : string;
 
-    @Prop()
+    @Prop({type: String})
     profile : string
+
+    @Prop({type: Object})
+    portfolio : object
 
     @Prop({type: AddressSchema})
     address : AddressSchemaClass;
